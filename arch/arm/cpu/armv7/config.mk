@@ -9,6 +9,8 @@
 # supported by more tool-chains
 PF_CPPFLAGS_ARMV7 := $(call cc-option, -march=armv7-a, -march=armv5)
 PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_ARMV7)
+PF_CPPFLAGS_NO_UNALIGNED := $(call cc-option, -mno-unaligned-access,)
+PLATFORM_CPPFLAGS += $(PF_CPPFLAGS_NO_UNALIGNED)
 
 # On supported platforms we set the bit which causes us to trap on unaligned
 # memory access.  This is the opposite of what the compiler expects to be
