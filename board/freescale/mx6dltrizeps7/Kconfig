@@ -1,0 +1,45 @@
+if TARGET_MX6DLTRIZEPS7F500
+
+config SYS_BOARD
+	default "mx6dltrizeps7"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "mx6dltrizeps7f500"
+
+endif
+if TARGET_MX6DLTRIZEPS7PCONXS
+
+config SYS_BOARD
+	default "mx6dltrizeps7"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "mx6dltrizeps7pconxs"
+
+endif
+if TARGET_MX6DLTRIZEPS7U100
+
+config SYS_BOARD
+	default "mx6dltrizeps7"
+
+config SYS_VENDOR
+	default "freescale"
+
+config SYS_SOC
+	default "mx6"
+
+config SYS_CONFIG_NAME
+	default "mx6dltrizeps7u100"
+
+endif

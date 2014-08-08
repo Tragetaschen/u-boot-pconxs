@@ -1,0 +1,11 @@
+MX6DLTRIZEPS7 BOARD
+M:	Kai Ruhnau <Kai.Ruhnau@target-sg.com>
+S:	Maintained
+F:	board/freescale/mx6dltrizeps7/
+F:	include/configs/mx6dltrizeps7.h
+F:	include/configs/mx6dltrizeps7f500.h
+F:	include/configs/mx6dltrizeps7pconxs.h
+F:	include/configs/mx6dltrizeps7u100.h
+F:	configs/mx6dltrizeps7f500_defconfig
+F:	configs/mx6dltrizeps7pconxs_defconfig
+F:	configs/mx6dltrizeps7u100_defconfig
