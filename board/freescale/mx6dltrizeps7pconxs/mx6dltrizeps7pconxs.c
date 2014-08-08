@@ -37,6 +37,7 @@ DECLARE_GLOBAL_DATA_PTR;
 static u32 system_rev;
 
 static void display_init(void);
+static void wlan_bluetooth_init(void);
 static void usbotg_init(void);
 
 #ifdef CONFIG_CMD_I2C
@@ -202,6 +203,21 @@ static void display_init(void)
 #endif
 }
 
+static void wlan_bluetooth_init(void)
+{
+	imx_iomux_v3_setup_pad(MX6_PAD_KEY_COL2__GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL));
+	imx_iomux_v3_setup_pad(MX6_PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL));
+#define TRIZEPS7_WLAN_SHUTDOWN IMX_GPIO_NR(4, 10)
+#define TRIZEPS7_WLAN_RESET IMX_GPIO_NR(1, 2)
+	gpio_direction_output(TRIZEPS7_WLAN_RESET, 0);
+	udelay(10);
+	gpio_direction_output(TRIZEPS7_WLAN_SHUTDOWN, 0);
+	udelay(20);
+	gpio_direction_output(TRIZEPS7_WLAN_SHUTDOWN, 1);
+	udelay(10);
+	gpio_direction_output(TRIZEPS7_WLAN_RESET, 1);
+}
+
 int board_early_init_f(void)
 {
 	setup_iomux_asrc();
@@ -250,6 +266,7 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
+	wlan_bluetooth_init();
 	return 0;
 }
 
