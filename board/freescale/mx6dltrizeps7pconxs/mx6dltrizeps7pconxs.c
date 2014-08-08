@@ -137,8 +137,8 @@ iomux_v3_cfg_t const usdhc4_pads[] = {
 };
 
 struct fsl_esdhc_cfg usdhc_cfg[3] = {
-	{USDHC4_BASE_ADDR},
 	{USDHC2_BASE_ADDR},
+	{USDHC4_BASE_ADDR},
 };
 
 int board_mmc_init(bd_t *bis)
@@ -146,8 +146,8 @@ int board_mmc_init(bd_t *bis)
 	s32 status = 0;
 	u32 index = 0;
 
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
-	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 
 	for(index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
 		switch (index) {
