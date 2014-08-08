@@ -37,7 +37,6 @@ DECLARE_GLOBAL_DATA_PTR;
 static u32 system_rev;
 
 static void display_init(void);
-static void wlan_bluetooth_init(void);
 static void usbotg_init(void);
 
 #ifdef CONFIG_CMD_I2C
@@ -112,16 +111,16 @@ static void setup_iomux_uart(void)
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_SD2_CLK__SD2_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_CMD__SD2_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT0__SD2_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT1__SD2_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT2__SD2_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_SD2_DAT3__SD2_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_GPIO_4__GPIO1_IO04	| MUX_PAD_CTRL(NO_PAD_CTRL),
+iomux_v3_cfg_t const usdhc1_pads[] = {
+	MX6_PAD_SD1_CLK__SD1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_CMD__SD1_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT0__SD1_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT1__SD1_DATA1	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT2__SD1_DATA2	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_SD1_DAT3__SD1_DATA3	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_KEY_COL2__GPIO4_IO10 	| MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_GPIO_2__GPIO1_IO02 	| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
-
 
 iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_CLK__SD4_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -137,8 +136,8 @@ iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_NANDF_ALE__SD4_RESET	| MUX_PAD_CTRL(USDHC_PAD_CTRL)
 };
 
-struct fsl_esdhc_cfg usdhc_cfg[3] = {
-	{USDHC2_BASE_ADDR},
+struct fsl_esdhc_cfg usdhc_cfg[2] = {
+	{USDHC1_BASE_ADDR},
 	{USDHC4_BASE_ADDR},
 };
 
@@ -147,16 +146,23 @@ int board_mmc_init(bd_t *bis)
 	s32 status = 0;
 	u32 index = 0;
 
-	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
+	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 	usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC4_CLK);
 
 	for(index = 0; index < CONFIG_SYS_FSL_USDHC_NUM; ++index) {
 		switch (index) {
 			case 0:
-#define USDHC2_CD IMX_GPIO_NR(1, 4)
-				gpio_direction_input(USDHC2_CD);
-				imx_iomux_v3_setup_multiple_pads(usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
-				break;	
+				imx_iomux_v3_setup_multiple_pads(usdhc1_pads, ARRAY_SIZE(usdhc1_pads));
+#define TRIZEPS7_WLAN_SHUTDOWN IMX_GPIO_NR(4, 10)
+#define TRIZEPS7_WLAN_RESET IMX_GPIO_NR(1, 2)
+				gpio_direction_output(TRIZEPS7_WLAN_RESET, 0);
+				udelay(10);
+				gpio_direction_output(TRIZEPS7_WLAN_SHUTDOWN, 0);
+				udelay(20);
+				gpio_direction_output(TRIZEPS7_WLAN_SHUTDOWN, 1);
+				udelay(10);
+				gpio_direction_output(TRIZEPS7_WLAN_RESET, 1);
+				break;
 			case 1:
 				imx_iomux_v3_setup_multiple_pads(usdhc4_pads, ARRAY_SIZE(usdhc4_pads));
 				break;	
@@ -166,11 +172,11 @@ int board_mmc_init(bd_t *bis)
 				       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
 				return status;
 		}
-		
 		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
 	}
 	return status;
 }
+
 #endif
 
 #if defined(CONFIG_FEC_MXC)
@@ -201,21 +207,6 @@ static void display_init(void)
 	gpio_direction_output(IPAN5_DISPLAY_POWER, 0);
 	gpio_direction_output(IPAN5_BACKLIGHT_ENABLE, 0);
 #endif
-}
-
-static void wlan_bluetooth_init(void)
-{
-	imx_iomux_v3_setup_pad(MX6_PAD_KEY_COL2__GPIO4_IO10 | MUX_PAD_CTRL(NO_PAD_CTRL));
-	imx_iomux_v3_setup_pad(MX6_PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL));
-#define TRIZEPS7_WLAN_SHUTDOWN IMX_GPIO_NR(4, 10)
-#define TRIZEPS7_WLAN_RESET IMX_GPIO_NR(1, 2)
-	gpio_direction_output(TRIZEPS7_WLAN_RESET, 0);
-	udelay(10);
-	gpio_direction_output(TRIZEPS7_WLAN_SHUTDOWN, 0);
-	udelay(20);
-	gpio_direction_output(TRIZEPS7_WLAN_SHUTDOWN, 1);
-	udelay(10);
-	gpio_direction_output(TRIZEPS7_WLAN_RESET, 1);
 }
 
 int board_early_init_f(void)
@@ -266,7 +257,6 @@ int board_late_init(void)
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
-	wlan_bluetooth_init();
 	return 0;
 }
 
