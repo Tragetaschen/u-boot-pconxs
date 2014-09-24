@@ -47,7 +47,6 @@ static void setup_iomux_enet(void);
 #endif
 static void setup_iomux_asrc(void);
 static void setup_iomux_audmux(void);
-static void setup_iomux_flexcan(void);
 static void setup_iomux_gpio(void);
 static void setup_iomux_hdmi(void);
 #ifdef CONFIG_VIDEO_IPUV3
@@ -55,6 +54,7 @@ static void setup_iomux_ipu1(void);
 #endif
 static void setup_iomux_pwm(void);
 static void setup_iomux_weim(void);
+static void keep_power_supply_alive(void);
 static void periphery_reset(void);
 
 
@@ -213,7 +213,6 @@ int board_early_init_f(void)
 {
 	setup_iomux_asrc();
 	setup_iomux_audmux();
-	setup_iomux_flexcan();
 	setup_iomux_gpio();
 	setup_iomux_hdmi();
 #ifdef CONFIG_VIDEO_IPUV3
@@ -226,10 +225,17 @@ int board_early_init_f(void)
 	setup_iomux_i2c(I2C1_BASE_ADDR);
 	setup_iomux_i2c(I2C2_BASE_ADDR);
 #endif
+	keep_power_supply_alive();
 	periphery_reset();
 	usbotg_init();
 	display_init();
 	return 0;
+}
+
+static void keep_power_supply_alive(void)
+{
+	#define TARGET_POWER_SUPPLY_PIN IMX_GPIO_NR(4, 14)
+	gpio_direction_output(TARGET_POWER_SUPPLY_PIN, 0);
 }
 
 static void periphery_reset(void)
@@ -442,29 +448,6 @@ static void setup_iomux_audmux() {
 	imx_iomux_v3_setup_multiple_pads(audmux_pads, ARRAY_SIZE(audmux_pads));
 }
 
-#define FLEXCAN_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)
-
-iomux_v3_cfg_t const flexcan1_pads[] = {
-	MX6_PAD_GPIO_8__FLEXCAN1_RX |MUX_PAD_CTRL(FLEXCAN_PAD_CTRL),
-	MX6_PAD_GPIO_7__FLEXCAN1_TX |MUX_PAD_CTRL(FLEXCAN_PAD_CTRL),
-};
-
-iomux_v3_cfg_t const flexcan2_pads[] = {
-	MX6_PAD_KEY_ROW4__FLEXCAN2_RX |MUX_PAD_CTRL(FLEXCAN_PAD_CTRL),
-	MX6_PAD_KEY_COL4__FLEXCAN2_TX |MUX_PAD_CTRL(FLEXCAN_PAD_CTRL),
-};
-
-static void setup_iomux_flexcan() {
-	imx_iomux_v3_setup_multiple_pads(flexcan1_pads, ARRAY_SIZE(flexcan1_pads));
-	imx_iomux_v3_setup_multiple_pads(flexcan2_pads, ARRAY_SIZE(flexcan2_pads));
-}
-
 #define GPIO_PAD_CTRL (\
 	PAD_CTL_PUS_100K_UP | \
 	PAD_CTL_SPEED_MED | \
@@ -474,6 +457,11 @@ static void setup_iomux_flexcan() {
 )
 
 iomux_v3_cfg_t const gpio_pads[] = {
+	MX6_PAD_GPIO_7__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_GPIO_8__GPIO1_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_KEY_COL4__GPIO4_IO14 |MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_KEY_ROW4__GPIO4_IO15 |MUX_PAD_CTRL(NO_PAD_CTRL),
+
 	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
