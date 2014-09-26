@@ -235,7 +235,7 @@ int board_early_init_f(void)
 static void keep_power_supply_alive(void)
 {
 	#define TARGET_POWER_SUPPLY_PIN IMX_GPIO_NR(4, 15)
-	gpio_direction_output(TARGET_POWER_SUPPLY_PIN, 0);
+	gpio_direction_output(TARGET_POWER_SUPPLY_PIN, 1);
 }
 
 static void periphery_reset(void)
