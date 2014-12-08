@@ -83,7 +83,7 @@
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY -1
-#define CONFIG_ETHPRIME "FEC0"
+#define CONFIG_ETHPRIME "FEC"
 
 
 /* Ethernet */
