@@ -282,6 +282,17 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 	struct fuse_bank4_regs *fuse =
 			(struct fuse_bank4_regs *)bank->fuse_regs;
 
+#if defined(CONFIG_TARGET_REVERSE_MAC_ADDRESS)
+	u32 value = readl(&fuse->mac_addr_high);
+	mac[5] = (value >> 8);
+	mac[4] = value ;
+
+	value = readl(&fuse->mac_addr_low);
+	mac[3] = value >> 24 ;
+	mac[2] = value >> 16 ;
+	mac[1] = value >> 8 ;
+	mac[0] = value ;
+#else
 	u32 value = readl(&fuse->mac_addr_high);
 	mac[0] = (value >> 8);
 	mac[1] = value ;
@@ -291,6 +302,7 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 	mac[3] = value >> 16 ;
 	mac[4] = value >> 8 ;
 	mac[5] = value ;
+#endif
 
 }
 #endif
