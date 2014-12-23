@@ -53,9 +53,9 @@ static void setup_iomux_hdmi(void);
 #ifdef CONFIG_VIDEO_IPUV3
 static void setup_iomux_ipu1(void);
 #endif
-static void setup_iomux_mlb(void);
 static void setup_iomux_pwm(void);
 static void setup_iomux_weim(void);
+static void periphery_reset(void);
 
 
 #ifdef CONFIG_VIDEO_IPUV3
@@ -219,7 +219,6 @@ int board_early_init_f(void)
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_iomux_ipu1();
 #endif
-	setup_iomux_mlb();
 	setup_iomux_pwm();
 	setup_iomux_weim();
 	setup_iomux_uart();
@@ -227,9 +226,17 @@ int board_early_init_f(void)
 	setup_iomux_i2c(I2C1_BASE_ADDR);
 	setup_iomux_i2c(I2C2_BASE_ADDR);
 #endif
+	periphery_reset();
 	usbotg_init();
 	display_init();
 	return 0;
+}
+
+static void periphery_reset(void)
+{
+#define PERIPHERY_RESET_OUT IMX_GPIO_NR(1, 6)
+	gpio_direction_output(PERIPHERY_RESET_OUT, 0);
+	gpio_direction_output(PERIPHERY_RESET_OUT, 1);
 }
 
 static void usbotg_init(void) {
@@ -468,6 +475,9 @@ static void setup_iomux_flexcan() {
 
 iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_GPIO_2__GPIO1_IO02 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 
 	MX6_PAD_NANDF_D0__GPIO2_IO00 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_D1__GPIO2_IO01 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
@@ -583,23 +593,6 @@ static void setup_iomux_ipu1() {
 	imx_iomux_v3_setup_multiple_pads(ipu1_pads, ARRAY_SIZE(ipu1_pads));
 }
 #endif
-#define MLB_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)
-
-iomux_v3_cfg_t const mlb_pads[] = {
-	MX6_PAD_GPIO_3__MLB_CLK | MUX_PAD_CTRL(MLB_PAD_CTRL),
-	MX6_PAD_GPIO_2__MLB_DATA | MUX_PAD_CTRL(MLB_PAD_CTRL),
-	MX6_PAD_GPIO_6__MLB_SIG | MUX_PAD_CTRL(MLB_PAD_CTRL),
-};
-
-static void setup_iomux_mlb() {
-	imx_iomux_v3_setup_multiple_pads(mlb_pads, ARRAY_SIZE(mlb_pads));
-}
 
 #define PWM_PAD_CTRL (\
 	PAD_CTL_PUS_100K_UP | \
