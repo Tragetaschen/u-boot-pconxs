@@ -19,6 +19,7 @@
 
 #define MIIM_BCM54XX_SHD			0x1c
 #define MIIM_BCM54XX_SHD_WRITE			0x8000
+#define MIMM_BCM54XX_SHD_RGMII_MODE		0x0b	/* 01011: RGMII Mode Selector */
 #define MIIM_BCM54XX_SHD_VAL(x)			((x & 0x1f) << 10)
 #define MIIM_BCM54XX_SHD_DATA(x)		((x & 0x3ff) << 0)
 #define MIIM_BCM54XX_SHD_WR_ENCODE(val, data)	\
@@ -29,11 +30,88 @@
 #define MIIM_BCM54XX_EXP_SEL		0x17	/* Expansion register select */
 #define MIIM_BCM54XX_EXP_SEL_SSD	0x0e00	/* Secondary SerDes select */
 #define MIIM_BCM54XX_EXP_SEL_ER		0x0f00	/* Expansion register select */
+#define MIIM_BCM54XX_EXP_AADJ1CH0		0x001f
+#define  MIIM_BCM54XX_EXP_AADJ1CH0_SWP_ABCD_OEN	0x0200
+#define  MIIM_BCM54XX_EXP_AADJ1CH0_SWSEL_THPF	0x0100
+#define MIIM_BCM54XX_EXP_AADJ1CH3		0x601f
+#define  MIIM_BCM54XX_EXP_AADJ1CH3_ADCCKADJ	0x0002
+#define MIIM_BCM54XX_EXP_EXP08			0x0F08
+#define  MIIM_BCM54XX_EXP_EXP08_RJCT_2MHZ	0x0001
+#define MIIM_BCM54XX_EXP_EXP75			0x0f75
+#define  MIIM_BCM54XX_EXP_EXP75_VDACCTRL	0x003c
+#define MIIM_BCM54XX_EXP_EXP96			0x0f96
+#define  MIIM_BCM54XX_EXP_EXP96_MYST		0x0010
+#define MIIM_BCM54XX_EXP_EXP97			0x0f97
+#define  MIIM_BCM54XX_EXP_EXP97_MYST		0x0c0c
 
 /* Broadcom BCM5461S */
 static int bcm5461_config(struct phy_device *phydev)
 {
 	genphy_config_aneg(phydev);
+
+	phy_reset(phydev);
+
+	return 0;
+}
+
+static int bcm54xx_exp_write(struct phy_device *phydev, u16 regnum, u16 val)
+{
+	int ret;
+
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL, regnum);
+	if (ret < 0)
+		return ret;
+
+	ret = phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA, val);
+
+	/* Restore default value.  It's O.K. if this write fails. */
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL, 0);
+
+	return ret;
+}
+
+
+static int bcm50610_config(struct phy_device *phydev)
+{
+	genphy_config_aneg(phydev);
+
+	int err;
+
+	err = phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_SHD,
+			MIIM_BCM54XX_SHD_WR_ENCODE(MIMM_BCM54XX_SHD_RGMII_MODE, 0));
+	if (err < 0)
+		return err;
+
+	err = bcm54xx_exp_write(phydev, MIIM_BCM54XX_EXP_EXP08,
+					MIIM_BCM54XX_EXP_EXP08_RJCT_2MHZ);
+	if (err < 0)
+		return err;
+	err = bcm54xx_exp_write(phydev, MIIM_BCM54XX_EXP_AADJ1CH0,
+				MIIM_BCM54XX_EXP_AADJ1CH0_SWP_ABCD_OEN |
+				MIIM_BCM54XX_EXP_AADJ1CH0_SWSEL_THPF);
+	if (err < 0)
+		return err;
+
+	err = bcm54xx_exp_write(phydev, MIIM_BCM54XX_EXP_AADJ1CH3,
+					MIIM_BCM54XX_EXP_AADJ1CH3_ADCCKADJ);
+	if (err < 0)
+		return err;
+
+	err = bcm54xx_exp_write(phydev, MIIM_BCM54XX_EXP_EXP75,
+				MIIM_BCM54XX_EXP_EXP75_VDACCTRL);
+	if (err < 0)
+		return err;
+
+	err = bcm54xx_exp_write(phydev, MIIM_BCM54XX_EXP_EXP96,
+				MIIM_BCM54XX_EXP_EXP96_MYST);
+	if (err < 0)
+		return err;
+
+	err = bcm54xx_exp_write(phydev, MIIM_BCM54XX_EXP_EXP97,
+				MIIM_BCM54XX_EXP_EXP97_MYST);
+
+	if (err < 0)
+		return err;
 
 	phy_reset(phydev);
 
@@ -234,6 +312,16 @@ static int bcm5482_startup(struct phy_device *phydev)
 	return 0;
 }
 
+static struct phy_driver BCM50610_driver = {
+	.name = "Broadcom BCM50610",
+	.uid = 0x143bd60,
+	.mask = 0xffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm50610_config,
+	.startup = &bcm54xx_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 static struct phy_driver BCM5461S_driver = {
 	.name = "Broadcom BCM5461S",
 	.uid = 0x2060c0,
@@ -266,6 +354,7 @@ static struct phy_driver BCM5482S_driver = {
 
 int phy_broadcom_init(void)
 {
+	phy_register(&BCM50610_driver);
 	phy_register(&BCM5482S_driver);
 	phy_register(&BCM5464S_driver);
 	phy_register(&BCM5461S_driver);
