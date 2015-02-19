@@ -18,7 +18,7 @@
 
 #define CONFIG_SYS_GENERIC_BOARD
 
-//http://www.arm.linux.org.uk/developer/machines/list.php?id=4634
+/*http://www.arm.linux.org.uk/developer/machines/list.php?id=4634*/
 #define CONFIG_MACH_TYPE 4634
 
 #define CONFIG_SYS_MX6_HCLK 24000000
