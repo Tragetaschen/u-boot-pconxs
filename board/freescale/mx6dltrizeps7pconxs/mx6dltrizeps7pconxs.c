@@ -53,7 +53,7 @@ static void setup_iomux_hdmi(void);
 static void setup_iomux_ipu1(void);
 #endif
 static void setup_iomux_pwm(void);
-static void setup_iomux_weim(void);
+//static void setup_iomux_weim(void);
 static void keep_power_supply_alive(void);
 static void periphery_reset(void);
 static void turn_off_leds(void);
@@ -220,7 +220,7 @@ int board_early_init_f(void)
 	setup_iomux_ipu1();
 #endif
 	setup_iomux_pwm();
-	setup_iomux_weim();
+//	setup_iomux_weim();
 	setup_iomux_uart();
 #ifdef CONFIG_CMD_I2C
 	setup_iomux_i2c(I2C1_BASE_ADDR);
@@ -457,6 +457,8 @@ iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
 
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+
 	MX6_PAD_GPIO_7__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_GPIO_8__GPIO1_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_KEY_COL4__GPIO4_IO14 |MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -621,13 +623,13 @@ static void setup_iomux_pwm() {
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const weim_pads[] = {
+/*iomux_v3_cfg_t const weim_pads[] = {
 	MX6_PAD_EIM_A16__EIM_ADDR16 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 	MX6_PAD_EIM_A17__EIM_ADDR17 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 	MX6_PAD_EIM_A18__EIM_ADDR18 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_A19__EIM_ADDR19 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
+	MX6_PAD_EIM_A19__EIM_ADDR19 | MUX_PAD_CTRL(WEIM_PAD_CTRL),*/
 /* A20..A25: GPIOs */
-	MX6_PAD_EIM_CS0__EIM_CS0_B | MUX_PAD_CTRL(WEIM_PAD_CTRL),
+/*	MX6_PAD_EIM_CS0__EIM_CS0_B | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 	MX6_PAD_EIM_CS1__EIM_CS1_B | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 	MX6_PAD_EIM_D16__EIM_DATA16 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D17__EIM_DATA17 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
@@ -642,7 +644,6 @@ iomux_v3_cfg_t const weim_pads[] = {
 	MX6_PAD_EIM_D26__EIM_DATA26 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D27__EIM_DATA27 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D28__EIM_DATA28 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D29__EIM_DATA29 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D30__EIM_DATA30 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D31__EIM_DATA31 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_DA0__EIM_AD00 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
@@ -667,4 +668,4 @@ iomux_v3_cfg_t const weim_pads[] = {
 
 static void setup_iomux_weim() {
 	imx_iomux_v3_setup_multiple_pads(weim_pads, ARRAY_SIZE(weim_pads));
-}
+}*/
