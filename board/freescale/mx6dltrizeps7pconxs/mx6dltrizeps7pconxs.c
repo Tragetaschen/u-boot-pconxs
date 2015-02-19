@@ -9,6 +9,7 @@
 #include <common.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
+#include <asm/imx-common/spi.h>
 #include <asm/arch/imx-regs.h>
 #include <asm/arch/iomux.h>
 #include <asm/arch/mx6-pins.h>
@@ -26,6 +27,10 @@
 #include <asm/arch/sys_proto.h>
 #include <i2c.h>
 #include <asm/arch/crm_regs.h>
+
+#include <power/pmic.h>
+#include <power/pfuze100_pmic.h>
+#include "../common/pfuze.h"
 
 #include <linux/fb.h>
 #include "../drivers/video/mxcfb.h"
@@ -55,7 +60,6 @@ static void setup_iomux_ipu1(void);
 #endif
 static void setup_iomux_pwm(void);
 //static void setup_iomux_weim(void);
-static void keep_power_supply_alive(void);
 static void periphery_reset(void);
 static void turn_off_leds(void);
 
@@ -78,20 +82,20 @@ int dram_init(void)
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const uart1_pads[] = {
+static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT0__UART1_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT1__UART1_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
-iomux_v3_cfg_t const uart2_pads[] = {
+static iomux_v3_cfg_t const uart2_pads[] = {
 	MX6_PAD_SD3_DAT5__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_CMD__UART2_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_CLK__UART2_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const uart4_pads[] = {
+static iomux_v3_cfg_t const uart4_pads[] = {
 	MX6_PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 };
@@ -113,7 +117,7 @@ static void setup_iomux_uart(void)
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const usdhc1_pads[] = {
+static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_CLK__SD1_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD1_CMD__SD1_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD1_DAT0__SD1_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -124,7 +128,7 @@ iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_GPIO_2__GPIO1_IO02 	| MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
-iomux_v3_cfg_t const usdhc4_pads[] = {
+static iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_CLK__SD4_CLK	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD4_CMD__SD4_CMD	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
 	MX6_PAD_SD4_DAT0__SD4_DATA0	| MUX_PAD_CTRL(USDHC_PAD_CTRL),
@@ -145,7 +149,7 @@ struct fsl_esdhc_cfg usdhc_cfg[2] = {
 
 int board_mmc_init(bd_t *bis)
 {
-	s32 status = 0;
+	int ret;
 	u32 index = 0;
 
 	usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
@@ -172,20 +176,42 @@ int board_mmc_init(bd_t *bis)
 				printf("Warning: you configured more USDHC controllers"
 				       "(%d) than supported by the board (%d)\n",
 				       index + 1, CONFIG_SYS_FSL_USDHC_NUM);
-				return status;
+				return -EINVAL;
 		}
-		status |= fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
+		ret = fsl_esdhc_initialize(bis, &usdhc_cfg[index]);
+		if (ret)
+			return ret;
 	}
-	return status;
+	return 0;
 }
 
 #endif
+
+#define I2C_PMIC 1
+int power_init_board(void)
+{
+	#define TARGET_POWER_SUPPLY_PIN IMX_GPIO_NR(4, 15)
+	gpio_direction_output(TARGET_POWER_SUPPLY_PIN, 1);
+
+	struct pmic *p;
+	unsigned int ret;
+
+	p = pfuze_common_init(I2C_PMIC);
+	if (!p)
+		return -ENODEV;
+
+	ret = pfuze_mode_init(p, APS_PFM);
+	if (ret < 0)
+		return ret;
+
+	return 0;
+}
 
 #if defined(CONFIG_FEC_MXC)
 int board_eth_init(bd_t *bis)
 {
 	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-	enable_fec_anatop_clock(ENET_50MHz);
+	enable_fec_anatop_clock(ENET_50MHZ);
 	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
 	setup_iomux_enet();
 	return cpu_eth_init(bis);
@@ -227,18 +253,11 @@ int board_early_init_f(void)
 	setup_iomux_i2c(I2C1_BASE_ADDR);
 	setup_iomux_i2c(I2C2_BASE_ADDR);
 #endif
-	keep_power_supply_alive();
 	periphery_reset();
 	turn_off_leds();
 	usbotg_init();
 	display_init();
 	return 0;
-}
-
-static void keep_power_supply_alive(void)
-{
-	#define TARGET_POWER_SUPPLY_PIN IMX_GPIO_NR(4, 15)
-	gpio_direction_output(TARGET_POWER_SUPPLY_PIN, 1);
 }
 
 static void periphery_reset(void)
@@ -301,7 +320,7 @@ int board_late_init(void)
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t enet_pads[] = {
+static iomux_v3_cfg_t enet_pads[] = {
 	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
 	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
@@ -432,7 +451,7 @@ static void setup_iomux_asrc() {
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const audmux_pads[] = {
+static iomux_v3_cfg_t const audmux_pads[] = {
 	MX6_PAD_CSI0_DAT7__AUD3_RXD | MUX_PAD_CTRL(AUDMUX_PAD_CTRL),
 	MX6_PAD_CSI0_DAT5__AUD3_TXD | MUX_PAD_CTRL(AUDMUX_PAD_CTRL),
 	MX6_PAD_CSI0_DAT6__AUD3_TXFS | MUX_PAD_CTRL(AUDMUX_PAD_CTRL)
@@ -450,7 +469,7 @@ static void setup_iomux_audmux() {
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const gpio_pads[] = {
+static iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A21__GPIO2_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A22__GPIO2_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -518,7 +537,7 @@ static void setup_iomux_gpio() {
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const hdmi_pads[] = {
+static iomux_v3_cfg_t const hdmi_pads[] = {
 	MX6_PAD_KEY_ROW2__HDMI_TX_CEC_LINE | MUX_PAD_CTRL(HDMI_PAD_CTRL),
 };
 
@@ -536,7 +555,7 @@ static void setup_iomux_hdmi() {
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const ipu1_pads[] = {
+static iomux_v3_cfg_t const ipu1_pads[] = {
 
 	MX6_PAD_DISP0_DAT0__IPU1_DISP0_DATA00 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
 	MX6_PAD_DISP0_DAT1__IPU1_DISP0_DATA01 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
@@ -593,7 +612,7 @@ static void setup_iomux_ipu1() {
 	PAD_CTL_HYS \
 )
 
-iomux_v3_cfg_t const pwm_pads[] = {
+static iomux_v3_cfg_t const pwm_pads[] = {
 	MX6_PAD_GPIO_9__PWM1_OUT | MUX_PAD_CTRL(PWM_PAD_CTRL),
 	MX6_PAD_GPIO_1__PWM2_OUT | MUX_PAD_CTRL(PWM_PAD_CTRL)
 };

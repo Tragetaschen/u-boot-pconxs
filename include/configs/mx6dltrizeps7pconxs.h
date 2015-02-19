@@ -41,7 +41,6 @@
 #define CONFIG_SYS_PROMPT "Target U-Boot> "
 #define CONFIG_SYS_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE 256
-#define CONFIG_SYS_PBSIZE (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT)+16)
 #define CONFIG_SYS_MAXARGS 16
 #define CONFIG_SYS_BARGSIZE CONFIG_SYS_CBSIZE
 
@@ -187,6 +186,12 @@
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-trizeps7-pconxs.dtb"
 #define CONFIG_CONSOLE_DEV		"ttymxc1"
 #define CONFIG_MMCROOT			"/dev/mmcblk0p2"
+
+/* PMIC */
+#define CONFIG_POWER
+#define CONFIG_POWER_I2C
+#define CONFIG_POWER_PFUZE100
+#define CONFIG_POWER_PFUZE100_I2C_ADDR 0x08
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"autoload=0\0" \

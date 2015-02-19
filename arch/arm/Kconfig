@@ -641,6 +641,7 @@ config TARGET_MX6SXSABRESD
 
 config TARGET_MX6DLTRIZEPS7PCONXS
 	bool "Support mx6dltrizesp7pconxs"
+	select CPU_V7
 
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
