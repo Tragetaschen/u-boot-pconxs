@@ -639,6 +639,9 @@ config TARGET_MX6SXSABRESD
 	select CPU_V7
 	select SUPPORT_SPL
 
+config TARGET_MX6DLTRIZEPS7PCONXS
+	bool "Support mx6dltrizesp7pconxs"
+
 config TARGET_GW_VENTANA
 	bool "Support gw_ventana"
 	select CPU_V7
@@ -918,6 +921,7 @@ source "board/freescale/mx6qsabreauto/Kconfig"
 source "board/freescale/mx6sabresd/Kconfig"
 source "board/freescale/mx6slevk/Kconfig"
 source "board/freescale/mx6sxsabresd/Kconfig"
+source "board/freescale/mx6dltrizeps7pconxs/Kconfig"
 source "board/freescale/vf610twr/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/genesi/mx51_efikamx/Kconfig"

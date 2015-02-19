@@ -18,6 +18,7 @@
 #include <asm/imx-common/mxc_i2c.h>
 #include <asm/imx-common/boot_mode.h>
 #include <asm/imx-common/video.h>
+#include <asm/imx-common/spi.h>
 #include <mmc.h>
 #include <fsl_esdhc.h>
 #include <miiphy.h>
@@ -371,7 +372,7 @@ int checkboard(void)
 }
 
 #if defined(CONFIG_VIDEO_IPUV3)
-int display_count = 1;
+size_t  display_count = 1;
 struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
