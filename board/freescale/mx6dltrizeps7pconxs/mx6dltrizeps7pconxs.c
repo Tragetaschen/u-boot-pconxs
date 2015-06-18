@@ -399,22 +399,78 @@ struct display_info_t const displays[] = {{
 	.detect = NULL,
 	.enable = &enable_lvds,
 	.mode	= {
-		.name		= "EDT-WVGA",
-		.refresh	= 60,
-		.xres		= 800,
-		.yres		= 480,
-		.pixclock	= 30000,
-		.left_margin	= 40,
-		.right_margin	= 40,
-		.upper_margin	= 29, /* fixed */
-		.lower_margin	= 13,
-		.hsync_len	= 48, /* hsync_len + right_margin == 88 */
-		.vsync_len	= 3,
+		.name		= "New-DISP",
+		.refresh	= 75,
+		.xres		= 480,
+		.yres		= 800,
+		.pixclock	= 32552,
+		.vsync_len	= 2,
+		.upper_margin	= 2,
+		.lower_margin	= 2,
+		.hsync_len	= 10,
+		.left_margin	= 10,
+		.right_margin	= 8,
 		.sync		= 0,
-		.vmode		= FB_VMODE_NONINTERLACED | FB_SYNC_SWAP_RGB,
+		.vmode		= FB_VMODE_NONINTERLACED,
 		.flag		= 0
 	}
 }};
+
+#define GPIO_PAD_CTRL (\
+	PAD_CTL_PUS_100K_UP | \
+	PAD_CTL_SPEED_MED | \
+	PAD_CTL_DSE_40ohm | \
+	PAD_CTL_SRE_SLOW | \
+	PAD_CTL_HYS \
+)
+
+static iomux_v3_cfg_t const display_spi_pads[] = {
+	MX6_PAD_GPIO_8__GPIO1_IO08 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_GPIO_7__GPIO1_IO07 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
+#define DISPLAY_MOSI IMX_GPIO_NR(1, 8)
+#define DISPLAY_CLK IMX_GPIO_NR(1, 7)
+#define DISPLAY_CS IMX_GPIO_NR(4, 15)
+
+static u8 const display_enable_extended_commands[] = { 0xb9, 0xff, 0x83, 0x63, };
+static u8 const display_set_power1[] = { 0xb1, 0x81, 0x24, 0x04, 0x02, 0x02, 0x03, 0x10, 0x10, 0x34, 0x3c, 0x3f, 0x3f, };
+static u8 const display_sleep_out[] = { 0x11, };
+// wait 5 msec
+static u8 const display_display_inversion_off[] = { 0x20, };
+static u8 const display_memory_access_control[] = { 0x36, 0x00, };
+static u8 const display_interface_pixel_format[] = { 0x3a, 0x70 };
+// wait 120 msec
+static u8 const display_set_power2[] = { 0xb1, 0x78, 0x24, 0x04, 0x02, 0x02, 0x03, 0x10, 0x10, 0x34, 0x3c, 0x3f, 0x3f, };
+static u8 const display_set_rgb_interface_related_register[] = { 0xb3, 0x01, };
+static u8 const display_set_display_waveform_cycle[] = { 0xb4, 0x00, 0x08, 0x56, 0x07, 0x01, 0x01, 0x4d, 0x01, 0x42 };
+static u8 const display_set_panel[] = { 0xcc, 0x0b, };
+static u8 const display_set_gamma_curve_related_setting[] = { 0xe0, 0x01, 0x48, 0x4d, 0x4e, 0x58, 0xf6, 0x0b, 0x4e, 0x12, 0xd5, 0x15, 0x95, 0x55, 0x8e, 0x11, 0x01, 0x48, 0x4d, 0x55, 0x5f, 0xfd, 0x0a, 0x4e, 0x51, 0xd3, 0x17, 0x95, 0x96, 0x4e, 0x11, };
+// wait 5 msec
+static u8 const display_display_on[] = { 0x29 };
+
+static void send_display_command(u8 const* bytes, int length)
+{
+	int i, bit;
+	for (i=0; i<length; ++i)
+	{
+		udelay(50);
+		gpio_direction_output(DISPLAY_CLK, 0);
+		gpio_direction_output(DISPLAY_MOSI, i != 0);
+		udelay(50);
+		gpio_direction_output(DISPLAY_CLK, 1);
+		for (bit=7; bit >= 0; --bit)
+		{
+			udelay(50);
+			gpio_direction_output(DISPLAY_CLK, 0);
+			gpio_direction_output(DISPLAY_MOSI, (bytes[i] & (1<<bit))>>bit);
+			udelay(50);
+			gpio_direction_output(DISPLAY_CLK, 1);
+		}
+	}
+}
+
+#define SEND(array) send_display_command(array, ARRAY_SIZE(array))
 
 static void enable_lvds(struct display_info_t const *dev)
 {
@@ -422,6 +478,30 @@ static void enable_lvds(struct display_info_t const *dev)
 	u32 reg = readl(&iomux->gpr[2]);
 	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT | IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT;
 	writel(reg, &iomux->gpr[2]);
+
+	imx_iomux_v3_setup_multiple_pads(display_spi_pads, ARRAY_SIZE(display_spi_pads));
+	
+	// Wait 2 frames or more
+	udelay(50000);
+	gpio_direction_output(DISPLAY_CS, 0);
+
+	SEND(display_enable_extended_commands);
+	SEND(display_set_power1);
+	SEND(display_sleep_out);
+	udelay(5000);
+	SEND(display_display_inversion_off);
+	SEND(display_memory_access_control);
+	SEND(display_interface_pixel_format);
+	udelay(120000);
+	SEND(display_set_power2);
+	SEND(display_set_rgb_interface_related_register);
+	SEND(display_set_display_waveform_cycle);
+	SEND(display_set_panel);
+	SEND(display_set_gamma_curve_related_setting);
+	udelay(5000);
+	SEND(display_display_on);
+
+	gpio_direction_output(DISPLAY_CS, 1);
 }
 
 #endif
@@ -461,14 +541,6 @@ static void setup_iomux_audmux() {
 	imx_iomux_v3_setup_multiple_pads(audmux_pads, ARRAY_SIZE(audmux_pads));
 }
 
-#define GPIO_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)
-
 static iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A21__GPIO2_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
@@ -482,7 +554,6 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_GPIO_7__GPIO1_IO07 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_GPIO_8__GPIO1_IO08 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_KEY_COL4__GPIO4_IO14 |MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_KEY_ROW4__GPIO4_IO15 |MUX_PAD_CTRL(NO_PAD_CTRL),
 
 	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
