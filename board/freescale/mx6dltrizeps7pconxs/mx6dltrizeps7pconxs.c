@@ -395,7 +395,7 @@ size_t  display_count = 1;
 struct display_info_t const displays[] = {{
 	.bus	= -1,
 	.addr	= 0,
-	.pixfmt	= IPU_PIX_FMT_RGB666,
+	.pixfmt	= IPU_PIX_FMT_RGB24,
 	.detect = NULL,
 	.enable = &enable_lvds,
 	.mode	= {
@@ -425,13 +425,17 @@ struct display_info_t const displays[] = {{
 )
 
 static iomux_v3_cfg_t const display_spi_pads[] = {
-	MX6_PAD_GPIO_8__GPIO1_IO08 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_GPIO_7__GPIO1_IO07 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_KEY_ROW4__GPIO4_IO15 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_EIM_EB2__GPIO2_IO30 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_EIM_EB3__GPIO2_IO31 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	// backlight
+	MX6_PAD_EIM_A21__GPIO2_IO17 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	// reset
+	MX6_PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
-#define DISPLAY_MOSI IMX_GPIO_NR(1, 8)
-#define DISPLAY_CLK IMX_GPIO_NR(1, 7)
-#define DISPLAY_CS IMX_GPIO_NR(4, 15)
+#define DISPLAY_MOSI IMX_GPIO_NR(2, 30)
+#define DISPLAY_CLK IMX_GPIO_NR(2, 31)
+#define DISPLAY_CS IMX_GPIO_NR(5, 2)
 
 static u8 const display_enable_extended_commands[] = { 0xb9, 0xff, 0x83, 0x63, };
 static u8 const display_set_power1[] = { 0xb1, 0x81, 0x24, 0x04, 0x02, 0x02, 0x03, 0x10, 0x10, 0x34, 0x3c, 0x3f, 0x3f, };
@@ -451,6 +455,12 @@ static u8 const display_display_on[] = { 0x29 };
 
 static void send_display_command(u8 const* bytes, int length)
 {
+	// reset
+	gpio_direction_output(IMX_GPIO_NR(2, 18), 0);
+	gpio_direction_output(IMX_GPIO_NR(2, 18), 1);
+
+	// backlight on
+	gpio_direction_output(IMX_GPIO_NR(2, 17), 1);
 	int i, bit;
 	for (i=0; i<length; ++i)
 	{
@@ -542,12 +552,9 @@ static void setup_iomux_audmux() {
 }
 
 static iomux_v3_cfg_t const gpio_pads[] = {
-	MX6_PAD_EIM_A20__GPIO2_IO18 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EIM_A21__GPIO2_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A22__GPIO2_IO16 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A23__GPIO6_IO06 | MUX_PAD_CTRL(NO_PAD_CTRL),
 	MX6_PAD_EIM_A24__GPIO5_IO04 | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_EIM_A25__GPIO5_IO02 | MUX_PAD_CTRL(NO_PAD_CTRL),
 
 	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 
