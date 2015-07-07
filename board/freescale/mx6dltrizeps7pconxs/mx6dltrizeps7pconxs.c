@@ -507,8 +507,7 @@ static void enable_lvds(struct display_info_t const *dev)
 {
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	u32 reg = readl(&iomux->gpr[2]);
-#warning wrong channel width?
-	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT | IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT;
+	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT | IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT;
 	writel(reg, &iomux->gpr[2]);
 
 	imx_iomux_v3_setup_multiple_pads(display_spi_pads, ARRAY_SIZE(display_spi_pads));
