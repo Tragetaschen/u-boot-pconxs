@@ -291,9 +291,30 @@ static void periphery_reset(void)
 //	gpio_direction_output(TARGET_LED_LEFT_B, 0);
 //}
 
+static iomux_v3_cfg_t const usb_otg_pads[] = {
+	MX6_PAD_NANDF_D0__GPIO2_IO00 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_otg_pen
+	//MX6_PAD_NANDF_D2__GPIO2_IO02 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_host_pen
+	//MX6_PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_host_oc
+	MX6_PAD_NANDF_RB0__GPIO6_IO10 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_otg_oc
+	// usb_otg_vbus
+	// usb_otg_db
+	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL), // usb_otg_id
+	// usb_otg_dp
+	// usb_otg_dn
+	// usb_host_dp
+	// usb_host_dn
+};
+
 static void usbotg_init(void) {
-#define USB_OTG_OC IMX_GPIO_NR(6, 10)
-	gpio_direction_output(USB_OTG_OC, 1);
+	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
+	clrsetbits_le32(&iomuxc_regs->gpr[1],
+			IOMUXC_GPR1_OTG_ID_MASK,
+			IOMUXC_GPR1_OTG_ID_GPIO1);
+
+	imx_iomux_v3_setup_multiple_pads(usb_otg_pads, ARRAY_SIZE(usb_otg_pads));
+
+	gpio_direction_output(IMX_GPIO_NR(2, 0), 1);
 }
 
 int board_init(void)
@@ -486,6 +507,7 @@ static void enable_lvds(struct display_info_t const *dev)
 {
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
 	u32 reg = readl(&iomux->gpr[2]);
+#warning wrong channel width?
 	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_18BIT | IOMUXC_GPR2_DATA_WIDTH_CH1_18BIT;
 	writel(reg, &iomux->gpr[2]);
 
@@ -577,11 +599,8 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 
 	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_6__GPIO1_IO06 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 
-	MX6_PAD_NANDF_D0__GPIO2_IO00 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_D1__GPIO2_IO01 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_D2__GPIO2_IO02 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_D3__GPIO2_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_D4__GPIO2_IO04 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_D5__GPIO2_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
@@ -598,7 +617,6 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 
 	MX6_PAD_NANDF_CLE__GPIO6_IO07 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_WP_B__GPIO6_IO09 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_RB0__GPIO6_IO10 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_CS0__GPIO6_IO11 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_CS1__GPIO6_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_CS2__GPIO6_IO15 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
@@ -710,7 +728,6 @@ static void setup_iomux_ipu1() {
 
 static iomux_v3_cfg_t const pwm_pads[] = {
 	MX6_PAD_GPIO_9__PWM1_OUT | MUX_PAD_CTRL(PWM_PAD_CTRL),
-//	MX6_PAD_GPIO_1__PWM2_OUT | MUX_PAD_CTRL(PWM_PAD_CTRL)
 };
 
 static void setup_iomux_pwm() {
