@@ -195,11 +195,15 @@ int board_mmc_init(bd_t *bis)
 
 #endif
 
+static iomux_v3_cfg_t const power_pads[] = {
+	MX6_PAD_EIM_D28__GPIO3_IO28 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
+
 #define I2C_PMIC 1
 int power_init_board(void)
 {
-	//#define TARGET_POWER_SUPPLY_PIN IMX_GPIO_NR(4, 15)
-	//gpio_direction_output(TARGET_POWER_SUPPLY_PIN, 1);
+	imx_iomux_v3_setup_multiple_pads(power_pads, ARRAY_SIZE(power_pads));
+	gpio_direction_output(IMX_GPIO_NR(3, 28), 1);
 
 	struct pmic *p;
 	unsigned int ret;
@@ -774,7 +778,6 @@ static void setup_iomux_pwm() {
 	MX6_PAD_EIM_D24__EIM_DATA24 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D25__EIM_DATA25 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D26__EIM_DATA26 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D28__EIM_DATA28 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_D31__EIM_DATA31 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
 	MX6_PAD_EIM_DA0__EIM_AD00 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 	MX6_PAD_EIM_DA1__EIM_AD01 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
