@@ -282,8 +282,18 @@ static const struct boot_mode board_boot_modes[] = {
 };
 #endif
 
+static void fpga_reset(void)
+{
+	// pci nconfig
+	gpio_direction_output(IMX_GPIO_NR(6, 7), 0);
+	udelay(50);
+	gpio_direction_output(IMX_GPIO_NR(6, 7), 1);
+}
+
 int board_late_init(void)
 {
+	fpga_reset();
+
 #ifdef CONFIG_CMD_BMODE
 	add_board_boot_modes(board_boot_modes);
 #endif
@@ -553,6 +563,8 @@ static void setup_iomux_gpio() {
 	gpio_direction_output(IMX_GPIO_NR(3, 27), 0);
 	// vibrator disable
 	gpio_direction_output(IMX_GPIO_NR(3, 30), 0);
+	// fpga reset
+	gpio_direction_output(IMX_GPIO_NR(6, 7), 1);
 }
 
 #ifdef CONFIG_VIDEO_IPUV3
