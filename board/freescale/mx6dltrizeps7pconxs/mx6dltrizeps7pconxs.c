@@ -42,7 +42,6 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static u32 system_rev;
 
-//static void display_init(void);
 static void usbotg_init(void);
 
 #ifdef CONFIG_CMD_I2C
@@ -51,18 +50,12 @@ static void setup_iomux_i2c(unsigned int);
 #ifdef CONFIG_FEC_MXC
 //static void setup_iomux_enet(void);
 #endif
-//static void setup_iomux_asrc(void);
-//static void setup_iomux_audmux(void);
 static void setup_iomux_gpio(void);
-//static void setup_iomux_hdmi(void);
 #ifdef CONFIG_VIDEO_IPUV3
 static void setup_iomux_ipu1(void);
 #endif
 static void setup_iomux_pwm(void);
-//static void setup_iomux_weim(void);
 static void periphery_reset(void);
-//static void turn_off_leds(void);
-
 
 #ifdef CONFIG_VIDEO_IPUV3
 static void enable_lvds(struct display_info_t const* dev);
@@ -85,14 +78,10 @@ int dram_init(void)
 static iomux_v3_cfg_t const uart1_pads[] = {
 	MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	/*MX6_PAD_SD3_DAT0__UART1_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD3_DAT1__UART1_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),*/
 };
 static iomux_v3_cfg_t const uart2_pads[] = {
 	MX6_PAD_SD3_DAT5__UART2_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT4__UART2_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
-	/*MX6_PAD_SD3_CMD__UART2_CTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),
-	MX6_PAD_SD3_CLK__UART2_RTS_B | MUX_PAD_CTRL(UART_PAD_CTRL),*/
 };
 
 static iomux_v3_cfg_t const uart4_pads[] = {
@@ -236,39 +225,20 @@ u32 get_board_rev(void)
 	return system_rev;
 }
 
-//static void display_init(void)
-//{
-//	imx_iomux_v3_setup_pad(MX6_PAD_DI0_PIN4__GPIO4_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL));
-//	imx_iomux_v3_setup_pad(MX6_PAD_CSI0_DATA_EN__GPIO5_IO20 | MUX_PAD_CTRL(NO_PAD_CTRL));
-//
-//#ifndef CONFIG_VIDEO_IPUV3
-//#define IPAN5_BACKLIGHT_ENABLE IMX_GPIO_NR(4, 20)
-//#define IPAN5_DISPLAY_POWER IMX_GPIO_NR(5, 20)
-//	gpio_direction_output(IPAN5_DISPLAY_POWER, 0);
-//	gpio_direction_output(IPAN5_BACKLIGHT_ENABLE, 0);
-//#endif
-//}
-
 int board_early_init_f(void)
 {
-//	setup_iomux_asrc();
-//	setup_iomux_audmux();
 	setup_iomux_gpio();
-//	setup_iomux_hdmi();
 #ifdef CONFIG_VIDEO_IPUV3
 	setup_iomux_ipu1();
 #endif
 	setup_iomux_pwm();
-//	setup_iomux_weim();
 	setup_iomux_uart();
 #ifdef CONFIG_CMD_I2C
 	setup_iomux_i2c(I2C1_BASE_ADDR);
 	setup_iomux_i2c(I2C2_BASE_ADDR);
 #endif
 	periphery_reset();
-	//turn_off_leds();
 	usbotg_init();
-	//display_init();
 	return 0;
 }
 
@@ -279,34 +249,10 @@ static void periphery_reset(void)
 	gpio_direction_output(PERIPHERY_RESET_OUT, 1);
 }
 
-//static void turn_off_leds(void)
-//{
-//	#define TARGET_LED_RIGHT_R IMX_GPIO_NR(5, 2)
-//	#define TARGET_LED_RIGHT_G IMX_GPIO_NR(5, 4)
-//	#define TARGET_LED_RIGHT_B IMX_GPIO_NR(6, 6)
-//	#define TARGET_LED_LEFT_R IMX_GPIO_NR(2, 16)
-//	#define TARGET_LED_LEFT_G IMX_GPIO_NR(2, 17)
-//	#define TARGET_LED_LEFT_B IMX_GPIO_NR(2, 18)
-//	gpio_direction_output(TARGET_LED_RIGHT_R, 0);
-//	gpio_direction_output(TARGET_LED_RIGHT_G, 0);
-//	gpio_direction_output(TARGET_LED_RIGHT_B, 0);
-//	gpio_direction_output(TARGET_LED_LEFT_R, 0);
-//	gpio_direction_output(TARGET_LED_LEFT_G, 0);
-//	gpio_direction_output(TARGET_LED_LEFT_B, 0);
-//}
-
 static iomux_v3_cfg_t const usb_otg_pads[] = {
 	MX6_PAD_NANDF_D0__GPIO2_IO00 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_otg_pen
-	//MX6_PAD_NANDF_D2__GPIO2_IO02 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_host_pen
-	//MX6_PAD_GPIO_3__GPIO1_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_host_oc
 	MX6_PAD_NANDF_RB0__GPIO6_IO10 | MUX_PAD_CTRL(GPIO_PAD_CTRL), // usb_otg_oc
-	// usb_otg_vbus
-	// usb_otg_db
 	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL), // usb_otg_id
-	// usb_otg_dp
-	// usb_otg_dn
-	// usb_host_dp
-	// usb_host_dn
 };
 
 static void usbotg_init(void) {
@@ -546,36 +492,6 @@ int overwrite_console(void)
 	return 1;
 }
 
-/*#define ASRC_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)*/
-//
-//static void setup_iomux_asrc() {
-//	imx_iomux_v3_setup_pad(MX6_PAD_GPIO_0__ASRC_EXT_CLK | MUX_PAD_CTRL(ASRC_PAD_CTRL));
-//}
-//
-/*#define AUDMUX_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)*/
-//
-//static iomux_v3_cfg_t const audmux_pads[] = {
-//	MX6_PAD_CSI0_DAT7__AUD3_RXD | MUX_PAD_CTRL(AUDMUX_PAD_CTRL),
-//	MX6_PAD_CSI0_DAT5__AUD3_TXD | MUX_PAD_CTRL(AUDMUX_PAD_CTRL),
-//	MX6_PAD_CSI0_DAT6__AUD3_TXFS | MUX_PAD_CTRL(AUDMUX_PAD_CTRL)
-//};
-//
-//static void setup_iomux_audmux() {
-//	imx_iomux_v3_setup_multiple_pads(audmux_pads, ARRAY_SIZE(audmux_pads));
-//}
-
 static iomux_v3_cfg_t const gpio_pads[] = {
 	// Keyboard
 	MX6_PAD_CSI0_DAT11__GPIO5_IO29 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
@@ -611,34 +527,17 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 
 	// Unknown
 
-	MX6_PAD_KEY_COL4__GPIO4_IO14 |MUX_PAD_CTRL(NO_PAD_CTRL),
-
-	MX6_PAD_GPIO_5__GPIO1_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-
 	MX6_PAD_NANDF_D1__GPIO2_IO01 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_D3__GPIO2_IO03 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_D4__GPIO2_IO04 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_D6__GPIO2_IO06 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_D7__GPIO2_IO07 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_EIM_LBA__GPIO2_IO27 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 
 	MX6_PAD_GPIO_19__GPIO4_IO05 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_KEY_COL1__GPIO4_IO08 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_KEY_ROW1__GPIO4_IO09 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 
-	MX6_PAD_CSI0_DATA_EN__GPIO5_IO20 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_CSI0_DAT10__GPIO5_IO28 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-
-	MX6_PAD_NANDF_WP_B__GPIO6_IO09 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_CS0__GPIO6_IO11 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_CS1__GPIO6_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_NANDF_CS2__GPIO6_IO15 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_NANDF_CS3__GPIO6_IO16 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_EIM_BCLK__GPIO6_IO31 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 
 	MX6_PAD_SD3_DAT2__GPIO7_IO06 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_SD3_DAT3__GPIO7_IO07 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_16__GPIO7_IO11 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_GPIO_18__GPIO7_IO13 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
@@ -655,22 +554,6 @@ static void setup_iomux_gpio() {
 	// vibrator disable
 	gpio_direction_output(IMX_GPIO_NR(3, 30), 0);
 }
-
-/*#define HDMI_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)*/
-//
-//static iomux_v3_cfg_t const hdmi_pads[] = {
-//	MX6_PAD_KEY_ROW2__HDMI_TX_CEC_LINE | MUX_PAD_CTRL(HDMI_PAD_CTRL),
-//};
-//
-//static void setup_iomux_hdmi() {
-//	imx_iomux_v3_setup_multiple_pads(hdmi_pads, ARRAY_SIZE(hdmi_pads));
-//}
 
 #ifdef CONFIG_VIDEO_IPUV3
 
@@ -708,14 +591,6 @@ static iomux_v3_cfg_t const ipu1_pads[] = {
 	MX6_PAD_DISP0_DAT21__IPU1_DISP0_DATA21 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
 	MX6_PAD_DISP0_DAT22__IPU1_DISP0_DATA22 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
 	MX6_PAD_DISP0_DAT23__IPU1_DISP0_DATA23 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT12__IPU1_CSI0_DATA12 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT13__IPU1_CSI0_DATA13 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT14__IPU1_CSI0_DATA14 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT15__IPU1_CSI0_DATA15 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT16__IPU1_CSI0_DATA16 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT17__IPU1_CSI0_DATA17 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT18__IPU1_CSI0_DATA18 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
-	MX6_PAD_CSI0_DAT19__IPU1_CSI0_DATA19 | MUX_PAD_CTRL(IPU1_PAD_CTRL),
 	MX6_PAD_CSI0_MCLK__IPU1_CSI0_HSYNC | MUX_PAD_CTRL(IPU1_PAD_CTRL),
 	MX6_PAD_CSI0_PIXCLK__IPU1_CSI0_PIXCLK | MUX_PAD_CTRL(IPU1_PAD_CTRL),
 	MX6_PAD_CSI0_VSYNC__IPU1_CSI0_VSYNC | MUX_PAD_CTRL(IPU1_PAD_CTRL),
@@ -747,60 +622,8 @@ static void setup_iomux_pwm() {
 	imx_iomux_v3_setup_multiple_pads(pwm_pads, ARRAY_SIZE(pwm_pads));
 }
 
-/*#define WEIM_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_FAST | \
-	PAD_CTL_HYS \
-)
-#define WEIM_DATA_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)
-#define WEIM_WAIT_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_LOW | \
-	PAD_CTL_DSE_60ohm | \
-	PAD_CTL_SRE_SLOW | \
-	PAD_CTL_HYS \
-)*/
-
 /*iomux_v3_cfg_t const weim_pads[] = {
-	MX6_PAD_EIM_A16__EIM_ADDR16 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_A17__EIM_ADDR17 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_A18__EIM_ADDR18 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_A19__EIM_ADDR19 | MUX_PAD_CTRL(WEIM_PAD_CTRL),*/
-/* A20..A25: GPIOs */
-/*	MX6_PAD_EIM_CS0__EIM_CS0_B | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_CS1__EIM_CS1_B | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_D16__EIM_DATA16 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D17__EIM_DATA17 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D18__EIM_DATA18 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D19__EIM_DATA19 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D20__EIM_DATA20 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D21__EIM_DATA21 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D22__EIM_DATA22 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_D31__EIM_DATA31 | MUX_PAD_CTRL(WEIM_DATA_PAD_CTRL),
-	MX6_PAD_EIM_DA0__EIM_AD00 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA1__EIM_AD01 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA3__EIM_AD03 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA4__EIM_AD04 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA6__EIM_AD06 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA7__EIM_AD07 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA8__EIM_AD08 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA9__EIM_AD09 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA10__EIM_AD10 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA11__EIM_AD11 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA12__EIM_AD12 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 	MX6_PAD_EIM_DA14__EIM_AD14 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_DA15__EIM_AD15 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-	MX6_PAD_EIM_EB0__EIM_EB0_B | MUX_PAD_CTRL(WEIM_PAD_CTRL),
 };
+*/
 
-static void setup_iomux_weim() {
-	imx_iomux_v3_setup_multiple_pads(weim_pads, ARRAY_SIZE(weim_pads));
-}*/
