@@ -47,9 +47,6 @@ static void usbotg_init(void);
 #ifdef CONFIG_CMD_I2C
 static void setup_iomux_i2c(unsigned int);
 #endif
-#ifdef CONFIG_FEC_MXC
-//static void setup_iomux_enet(void);
-#endif
 static void setup_iomux_gpio(void);
 #ifdef CONFIG_VIDEO_IPUV3
 static void setup_iomux_ipu1(void);
@@ -208,17 +205,6 @@ int power_init_board(void)
 	return 0;
 }
 
-#if defined(CONFIG_FEC_MXC)
-//int board_eth_init(bd_t *bis)
-//{
-//	struct iomuxc *const iomuxc_regs = (struct iomuxc *)IOMUXC_BASE_ADDR;
-//	enable_fec_anatop_clock(ENET_50MHZ);
-//	setbits_le32(&iomuxc_regs->gpr[1], IOMUXC_GPR1_ENET_CLK_SEL_MASK);
-//	setup_iomux_enet();
-//	return cpu_eth_init(bis);
-//}
-#endif
-
 u32 get_board_rev(void)
 {
 	system_rev = 0x63000;
@@ -299,52 +285,6 @@ int board_late_init(void)
 #endif
 	return 0;
 }
-
-#ifdef CONFIG_FEC_MXC
-
-#define ENET_PAD_CTRL (\
-	PAD_CTL_PUS_100K_UP | \
-	PAD_CTL_SPEED_MED | \
-	PAD_CTL_DSE_40ohm | \
-	PAD_CTL_HYS \
-)
-
-//static iomux_v3_cfg_t enet_pads[] = {
-//	MX6_PAD_RGMII_RXC__RGMII_RXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_RD0__RGMII_RD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_RD1__RGMII_RD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_RD2__RGMII_RD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_RD3__RGMII_RD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_RX_CTL__RGMII_RX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_TXC__RGMII_TXC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_TD0__RGMII_TD0 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_TD1__RGMII_TD1 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_TD2__RGMII_TD2 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_TD3__RGMII_TD3 | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_RGMII_TX_CTL__RGMII_TX_CTL | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_ENET_REF_CLK__ENET_TX_CLK | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_ENET_MDIO__ENET_MDIO | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	MX6_PAD_ENET_MDC__ENET_MDC | MUX_PAD_CTRL(ENET_PAD_CTRL),
-//	// do clock last
-//	MX6_PAD_GPIO_16__ENET_REF_CLK | MUX_PAD_CTRL(0xE1),
-//};
-
-int mx6_rgmii_rework(char *devname, int phy_addr)
-{
-	return 0;
-}
-
-//static void setup_iomux_enet(void)
-//{
-//#if !CONFIG_TARGET_NATIVE_PHY_ACTIVE
-//	// Put the native PHY in reset
-//	gpio_direction_output(IMX_GPIO_NR(6, 31), 0);
-//#endif
-//
-//	imx_iomux_v3_setup_multiple_pads(enet_pads, ARRAY_SIZE(enet_pads));
-//}
-
-#endif
 
 #ifdef CONFIG_CMD_I2C
 
@@ -635,9 +575,4 @@ static iomux_v3_cfg_t const pwm_pads[] = {
 static void setup_iomux_pwm() {
 	imx_iomux_v3_setup_multiple_pads(pwm_pads, ARRAY_SIZE(pwm_pads));
 }
-
-/*iomux_v3_cfg_t const weim_pads[] = {
-	MX6_PAD_EIM_DA14__EIM_AD14 | MUX_PAD_CTRL(WEIM_PAD_CTRL),
-};
-*/
 
