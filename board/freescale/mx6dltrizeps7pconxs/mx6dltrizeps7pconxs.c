@@ -533,6 +533,8 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_EIM_D26__GPIO3_IO26 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	// power on
 	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	// OLED Reset
+	MX6_PAD_KEY_COL4__GPIO4_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	
 
 	// Unknown
