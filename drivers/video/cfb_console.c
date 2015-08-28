@@ -1984,8 +1984,8 @@ static void plot_logo_or_black(void *screen, int x, int y, int black)
 
 static void *video_logo(void)
 {
-	char info[128];
-	int space, len;
+	__maybe_unused char info[128];
+	__maybe_unused int space, len;
 	__maybe_unused int y_off = 0;
 	__maybe_unused ulong addr;
 	__maybe_unused char *s;
@@ -2032,6 +2032,7 @@ static void *video_logo(void)
 	if (board_cfb_skip())
 		return 0;
 
+#if 0
 	sprintf(info, " %s", version_string);
 
 	space = (VIDEO_LINE_LEN / 2 - VIDEO_INFO_X) / VIDEO_FONT_WIDTH;
@@ -2082,6 +2083,7 @@ static void *video_logo(void)
 			}
 		}
 	}
+#endif
 #endif
 
 	return (video_fb_address + video_logo_height * VIDEO_LINE_LEN);
