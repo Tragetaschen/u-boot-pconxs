@@ -189,7 +189,7 @@
 
 #define CONFIG_DEFAULT_FDT_FILE		"imx6dl-trizeps7-pconxs.dtb"
 #define CONFIG_CONSOLE_DEV		"ttymxc1"
-#define CONFIG_MMCROOT			"/dev/mmcblk0p2"
+#define CONFIG_MMCROOT			"/dev/mmcblk3p2"
 
 /* PMIC */
 #define CONFIG_POWER
@@ -199,6 +199,7 @@
 
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"autoload=0\0" \
+	"bootdelay=1\0" \
 	"script=boot.scr\0" \
 	"image=zImage\0" \
 	"fdt_file=" CONFIG_DEFAULT_FDT_FILE "\0" \
@@ -214,7 +215,8 @@
 	"mmcargs=setenv bootargs "\
 		"consoleblank=0 "\
 		"console=${console},${baudrate} " \
-		"root=${mmcroot}\0" \
+		"root=${mmcroot} " \
+		"quiet\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
