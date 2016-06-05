@@ -1,0 +1,7 @@
+TRIZEPS_VII_SX BOARD
+M:	Marek Vasut <marex@denx.de>
+S:	Maintained
+F:	board/kk/trizeps_vii_sx/
+F:	include/configs/trizeps_vii_sx.h
+F:	configs/trizeps_vii_sx_defconfig
+F:	configs/trizeps_vii_sx_spl_defconfig
