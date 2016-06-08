@@ -272,8 +272,11 @@ static void fpga_reset(void)
 {
 	// pci nconfig
 	gpio_direction_output(IMX_GPIO_NR(6, 7), 0);
+	gpio_direction_output(IMX_GPIO_NR(7, 8), 0);
 	udelay(50);
 	gpio_direction_output(IMX_GPIO_NR(6, 7), 1);
+	gpio_direction_output(IMX_GPIO_NR(7, 8), 1);
+	udelay(50);
 }
 
 int board_late_init(void)
@@ -458,6 +461,7 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_EIM_D30__GPIO3_IO30 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	// PCIe
 	MX6_PAD_NANDF_CLE__GPIO6_IO07 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	MX6_PAD_SD3_RST__GPIO7_IO08 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_EIM_DA13__GPIO3_IO13 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_EIM_DA2__GPIO3_IO02 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	// 3ax int1
@@ -507,6 +511,7 @@ static void setup_iomux_gpio() {
 	gpio_direction_output(IMX_GPIO_NR(3, 30), 0);
 	// fpga reset
 	gpio_direction_output(IMX_GPIO_NR(6, 7), 1);
+	gpio_direction_output(IMX_GPIO_NR(7, 8), 1);
 }
 
 #ifdef CONFIG_VIDEO_IPUV3
