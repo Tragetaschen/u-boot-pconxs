@@ -379,8 +379,6 @@ static u8 const display_display_on[] = { 0x29 };
 
 static void send_display_command(u8 const* bytes, int length)
 {
-	// backlight on
-	gpio_direction_output(IMX_GPIO_NR(2, 17), 1);
 	int i, bit;
 	for (i=0; i<length; ++i)
 	{
@@ -405,6 +403,7 @@ static void send_display_command(u8 const* bytes, int length)
 static void enable_lvds(struct display_info_t const *dev)
 {
 	struct iomuxc *iomux = (struct iomuxc *)IOMUXC_BASE_ADDR;
+
 	u32 reg = readl(&iomux->gpr[2]);
 	reg |= IOMUXC_GPR2_DATA_WIDTH_CH0_24BIT | IOMUXC_GPR2_DATA_WIDTH_CH1_24BIT;
 	writel(reg, &iomux->gpr[2]);
@@ -432,6 +431,9 @@ static void enable_lvds(struct display_info_t const *dev)
 	SEND(display_display_on);
 
 	gpio_direction_output(DISPLAY_CS, 1);
+
+	// backlight on
+	gpio_direction_output(IMX_GPIO_NR(2, 17), 1);
 }
 
 #endif
