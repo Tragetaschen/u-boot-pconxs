@@ -379,10 +379,6 @@ static u8 const display_display_on[] = { 0x29 };
 
 static void send_display_command(u8 const* bytes, int length)
 {
-	// reset
-	gpio_direction_output(IMX_GPIO_NR(2, 18), 0);
-	gpio_direction_output(IMX_GPIO_NR(2, 18), 1);
-
 	// backlight on
 	gpio_direction_output(IMX_GPIO_NR(2, 17), 1);
 	int i, bit;
