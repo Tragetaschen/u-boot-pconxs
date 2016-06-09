@@ -182,17 +182,20 @@ int board_mmc_init(bd_t *bis)
 #endif
 
 static iomux_v3_cfg_t const power_pads[] = {
+	// i2c_batt_enable
 	MX6_PAD_EIM_D28__GPIO3_IO28 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+	// power on
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 };
 
 #define I2C_PMIC 1
 int power_init_board(void)
 {
-	imx_iomux_v3_setup_multiple_pads(power_pads, ARRAY_SIZE(power_pads));
-	gpio_direction_output(IMX_GPIO_NR(3, 28), 1);
-
 	struct pmic *p;
 	unsigned int ret;
+
+	imx_iomux_v3_setup_multiple_pads(power_pads, ARRAY_SIZE(power_pads));
+	gpio_direction_output(IMX_GPIO_NR(3, 29), 1);
 
 	p = pfuze_common_init(I2C_PMIC);
 	if (!p)
@@ -201,6 +204,8 @@ int power_init_board(void)
 	ret = pfuze_mode_init(p, APS_PFM);
 	if (ret < 0)
 		return ret;
+
+	gpio_direction_output(IMX_GPIO_NR(3, 28), 1);
 
 	return 0;
 }
@@ -473,8 +478,6 @@ static iomux_v3_cfg_t const gpio_pads[] = {
 	MX6_PAD_EIM_D24__GPIO3_IO24 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_EIM_D25__GPIO3_IO25 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	MX6_PAD_EIM_D26__GPIO3_IO26 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
-	// power on
-	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	// OLED Reset
 	MX6_PAD_KEY_COL4__GPIO4_IO14 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
 	
