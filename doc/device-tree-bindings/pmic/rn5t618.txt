@@ -1,0 +1,17 @@
+Ricoh RN5T618 PMIC
+
+This file describes the binding info for the PMIC driver.
+
+Required properties:
+- compatible: "ricoh,rn5t618"
+- reg: depending on strapping, e.g. 0x32
+
+With those two properties, the PMIC device can be used to read/write
+registers.
+
+Example:
+
+rn5t618@32 {
+	compatible = "ricoh,rn5t618";
+	reg = <0x32>;
+};

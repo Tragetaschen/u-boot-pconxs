@@ -18,6 +18,7 @@ obj-$(CONFIG_PMIC_MAX8997) += max8997.o
 obj-$(CONFIG_PMIC_PM8916) += pm8916.o
 obj-$(CONFIG_PMIC_RK8XX) += rk8xx.o
 obj-$(CONFIG_PMIC_RN5T567) += rn5t567.o
+obj-$(CONFIG_PMIC_RN5T618) += rn5t618.o
 obj-$(CONFIG_PMIC_TPS65090) += tps65090.o
 obj-$(CONFIG_PMIC_S5M8767) += s5m8767.o
 obj-$(CONFIG_DM_PMIC_TPS65910) += pmic_tps65910_dm.o
