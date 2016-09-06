@@ -348,6 +348,21 @@ static int setup_lcd(void)
 }
 #endif
 
+static iomux_v3_cfg_t const fpga_reset_pads[] = {
+	MX6_PAD_SD3_CLK__GPIO7_IO_0 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
+#define FPGA_RESET		IMX_GPIO_NR(7, 0)
+
+static void reset_fpga(void)
+{
+	imx_iomux_v3_setup_multiple_pads(fpga_reset_pads, ARRAY_SIZE(fpga_reset_pads));
+
+	gpio_direction_output(FPGA_RESET, 0);
+	udelay(50);
+	gpio_direction_output(FPGA_RESET, 1);
+}
+
 int board_init(void)
 {
 	/* Address of boot parameters */
@@ -365,6 +380,9 @@ int board_init(void)
 #ifdef CONFIG_VIDEO_MXS
 	setup_lcd();
 #endif
+
+	reset_fpga();
+
 	return 0;
 }
 
