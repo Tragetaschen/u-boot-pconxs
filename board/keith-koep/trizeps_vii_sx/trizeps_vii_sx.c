@@ -277,15 +277,6 @@ static iomux_v3_cfg_t const quadspi_pads[] = {
 	MX6_PAD_QSPI1A_SS1_B__QSPI1_A_SS1_B	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
 	/* SPI flash nRESET */
 	MX6_PAD_RGMII1_TXC__GPIO5_IO_11		| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-
-	MX6_PAD_QSPI1B_DATA0__QSPI1_B_DATA_0	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_DATA1__QSPI1_B_DATA_1	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_DATA2__QSPI1_B_DATA_2	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_DATA3__QSPI1_B_DATA_3	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_SCLK__QSPI1_B_SCLK	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_DQS__QSPI1_B_DQS		| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_SS0_B__QSPI1_B_SS0_B	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
-	MX6_PAD_QSPI1B_SS1_B__QSPI1_B_SS1_B	| MUX_PAD_CTRL(QSPI_PAD_CTRL1),
 };
 
 #define SPI_NOR_NRESET	IMX_GPIO_NR(5, 11)
@@ -386,11 +377,22 @@ int board_init(void)
 	return 0;
 }
 
+static iomux_v3_cfg_t const power_pads[] = {
+	MX6_PAD_QSPI1B_DATA1__GPIO4_IO_25 | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_QSPI1B_DATA2__GPIO4_IO_26 | MUX_PAD_CTRL(NO_PAD_CTRL),
+};
+
 /* Board specific PMIC setup */
 int power_init_board(void)
 {
 	struct pmic *p;
 	int ret;
+
+	imx_iomux_v3_setup_multiple_pads(power_pads, ARRAY_SIZE(power_pads));
+	/* Enable the power hold pin */
+	gpio_direction_output(IMX_GPIO_NR(4, 25), 1);
+	/* Enable I2C communication with the battery */
+	gpio_direction_output(IMX_GPIO_NR(4, 26), 1);
 
 	power_rn5t618_init(1);
 	p = pmic_get("RN5T618");
