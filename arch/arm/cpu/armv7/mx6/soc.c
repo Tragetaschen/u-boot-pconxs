@@ -482,6 +482,12 @@ void imx_get_mac_from_fuse(int dev_id, unsigned char *mac)
 		mac[5] = value ;
 	}
 
+#ifdef CONFIG_FEC_MXC_FUSE_MAC_REVERSED
+	/* Some SoM vendors program the MAC into the fuses in reverse order. */
+	swap(mac[0], mac[5]);
+	swap(mac[1], mac[4]);
+	swap(mac[2], mac[3]);
+#endif
 }
 #endif
 
