@@ -147,7 +147,7 @@
 		"load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"		\
 	"netload="							\
 		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
-	"miscargs=nohlt panic=1\0"					\
+	"miscargs=nohlt panic=1 quiet\0"				\
 	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
 	"nfsargs="							\
 		"test -z \"${nfsserverip}\" && "			\
