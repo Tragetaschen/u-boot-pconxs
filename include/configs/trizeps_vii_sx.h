@@ -148,7 +148,8 @@
 	"netload="							\
 		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
 	"miscargs=nohlt panic=1 quiet\0"				\
-	"mmcargs=setenv bootargs root=${rootdev} rw rootwait\0"		\
+	"mmcargs=setenv bootargs root=${rootdev} rw rootwait "		\
+		"rootfstype=ext4\0"					\
 	"nfsargs="							\
 		"test -z \"${nfsserverip}\" && "			\
 			"setenv nfsserverip ${serverip} ; "		\
