@@ -125,8 +125,8 @@
 	"baudrate=115200\0"						\
 	"fdt_high=0xffffffff\0"						\
 	"bootscript=boot.scr\0"						\
-	"bootdev=/dev/mmcblk0p1\0"					\
-	"rootdev=/dev/mmcblk0p2\0"					\
+	"bootdev=/dev/mmcblk1p1\0"					\
+	"rootdev=/dev/mmcblk1p2\0"					\
 	"netdev=eth0\0"							\
 	"kernel_addr_r=0x82000000\0"					\
 	"videomode=video=ctfb:x:480,y:800,depth:24,mode:0,pclk:32552,"	\
