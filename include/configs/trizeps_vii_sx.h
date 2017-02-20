@@ -147,7 +147,8 @@
 		"load mmc 0:1 ${kernel_addr_r} ${bootfile}\0"		\
 	"netload="							\
 		"tftp ${kernel_addr_r} ${hostname}/${bootfile}\0"	\
-	"miscargs=nohlt panic=1 quiet\0"				\
+	"miscargs=nohlt panic=1 quiet vt.global_cursor_default=0 "	\
+		"systemd.mask=getty@tty1.service\0"			\
 	"mmcargs=setenv bootargs root=${rootdev} rw rootwait "		\
 		"rootfstype=ext4\0"					\
 	"nfsargs="							\
