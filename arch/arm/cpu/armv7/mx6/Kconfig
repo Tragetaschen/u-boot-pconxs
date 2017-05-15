@@ -180,6 +180,13 @@ config TARGET_MX6SXSABREAUTO
         select DM
         select DM_THERMAL
 
+config TARGET_TRIZEPS_VII_DL
+	bool "K&K Trizeps VII DL SoM"
+	select MX6DL
+	select SUPPORT_SPL
+	select DM
+	select DM_THERMAL
+
 config TARGET_TRIZEPS_VII_SX
 	bool "K&K Trizeps VII SX SoM"
 	select MX6SX
@@ -334,6 +341,7 @@ source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"
 source "board/gateworks/gw_ventana/Kconfig"
 source "board/keith-koep/trizeps_vii_sx/Kconfig"
+source "board/keith-koep/trizeps_vii_dl/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/samtec/vining_2000/Kconfig"
 source "board/seco/Kconfig"
