@@ -83,6 +83,16 @@ int dram_init(void)
 	return 0;
 }
 
+static iomux_v3_cfg_t const gpio_pads[] = {
+	// nconfig
+	MX6_PAD_EIM_EB3__GPIO2_IO31 | MUX_PAD_CTRL(GPIO_PAD_CTRL),
+};
+
+static void setup_iomux_gpio(void)
+{
+	imx_iomux_v3_setup_multiple_pads(gpio_pads, ARRAY_SIZE(gpio_pads));
+}
+
 static iomux_v3_cfg_t const uart_pads[] = {
 	MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
 	MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
@@ -134,6 +144,7 @@ static void periphery_reset(void)
 
 int board_early_init_f(void)
 {
+	setup_iomux_gpio();
 	setup_iomux_uart();
 	periphery_reset();
 
@@ -210,10 +221,9 @@ int board_mmc_init(bd_t *bis)
 
 static void reset_fpga(void)
 {
-	// pci nconfig
-	gpio_direction_output(IMX_GPIO_NR(6, 7), 0);
+	gpio_direction_output(IMX_GPIO_NR(2, 31), 0);
 	udelay(50);
-	gpio_direction_output(IMX_GPIO_NR(6, 7), 1);
+	gpio_direction_output(IMX_GPIO_NR(2, 31), 1);
 }
 
 int board_init(void)
