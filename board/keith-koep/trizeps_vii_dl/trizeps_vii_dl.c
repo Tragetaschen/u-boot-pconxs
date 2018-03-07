@@ -7,32 +7,25 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/imx-regs.h>
+#include <asm/arch/crm_regs.h>
 #include <asm/arch/iomux.h>
+#include <asm/arch/imx-regs.h>
 #include <asm/arch/mx6-pins.h>
-#include <asm/errno.h>
+#include <asm/arch/sys_proto.h>
 #include <asm/gpio.h>
 #include <asm/imx-common/iomux-v3.h>
+#include <asm/io.h>
 #include <asm/imx-common/mxc_i2c.h>
-#include <asm/imx-common/boot_mode.h>
-#include <asm/imx-common/video.h>
-#include <mmc.h>
+#include <linux/sizes.h>
 #include <fsl_esdhc.h>
+#include <mmc.h>
+#include <i2c.h>
 #include <miiphy.h>
 #include <netdev.h>
-#include <asm/arch/sys_proto.h>
-#include <i2c.h>
-#include <asm/arch/crm_regs.h>
-
 #include <power/pmic.h>
 #include <power/pfuze100_pmic.h>
 #include "../../freescale/common/pfuze.h"
-
-#include <linux/fb.h>
-#include "../drivers/video/mxcfb.h"
-#include <ipu_pixfmt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
