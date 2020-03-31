@@ -1,0 +1,134 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Copyright (C) 2020 Kai Ruhnau <kai.ruhnau@target-sg.com>
+ */
+
+/dts-v1/;
+
+#include "imx6sx.dtsi"
+
+/ {
+	model = "Keith&Koep Trizeps VII SX SoM";
+	compatible = "keithkoep,imx6sx-trizeps-vii", "fsl,imx6sx";
+
+	memory@80000000 {
+		reg = <0x80000000 0x40000000>;
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_leds>;
+
+		power-hold {
+			label = "power-hold";
+			gpios = <&gpio4 25 0>;
+		};
+
+		battery-communication-enable {
+			label = "battery-communication-enable";
+			gpios = <&gpio4 26 0>;
+		};
+
+		fpga-reset {
+			label = "fpga-reset";
+			gpios = <&gpio7 0 0>;
+		};
+	};
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_uart1>;
+	status = "okay";
+};
+
+&usdhc4 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&pinctrl_usdhc4>;
+	vmmc-supply = <&reg_DCDC3>;
+	no-1-8-v;
+	non-removable;
+	status = "okay";
+};
+
+&i2c2 {
+	clock-frequency = <100000>;
+	pinctrl-names = "default", "gpio";
+	pinctrl-0 = <&pinctrl_i2c2>;
+	pinctrl-1 = <&pinctrl_i2c2_gpio>;
+	sda-gpios = <&gpio1 3 0>;
+	scl-gpios = <&gpio1 2 0>;
+	status = "okay";
+
+	rn5t618@32 {
+		compatible = "ricoh,rn5t618";
+		reg = <0x32>;
+
+		regulators {
+			reg_DCDC1: DCDC1 {
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <3500000>;
+				regulator-ramp-delay = <6000>;
+			};
+
+			reg_DCDC2: DCDC2 {
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <3500000>;
+				regulator-ramp-delay = <6000>;
+				regulator-boot-on;
+				regulator-always-on;
+			};
+
+			reg_DCDC3: DCDC3 {
+				regulator-min-microvolt = <600000>;
+				regulator-max-microvolt = <3500000>;
+				regulator-ramp-delay = <6000>;
+			};
+		};
+	};
+};
+
+&iomuxc {
+	imx6sx-trizeps-vii-sx {
+		pinctrl_leds: leds-grp {
+			fsl,pins = <
+				MX6SX_PAD_QSPI1B_DATA1__GPIO4_IO_25	0x1b0b1
+				MX6SX_PAD_QSPI1B_DATA2__GPIO4_IO_26	0x1b0b1
+				MX6SX_PAD_SD3_CLK__GPIO7_IO_0		0x1b0b1
+			>;
+		};
+
+		pinctrl_uart1: uart1-grp {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO04__UART1_TX		0x1b0b1
+				MX6SX_PAD_GPIO1_IO05__UART1_RX		0x1b0b1
+			>;
+		};
+
+		pinctrl_usdhc4: usdhc4-grp {
+			fsl,pins = <
+				MX6SX_PAD_SD4_CMD__USDHC4_CMD		0x1f019
+				MX6SX_PAD_SD4_CLK__USDHC4_CLK		0x1f019
+				MX6SX_PAD_SD4_DATA0__USDHC4_DATA0	0x1f019
+				MX6SX_PAD_SD4_DATA1__USDHC4_DATA1	0x1f019
+				MX6SX_PAD_SD4_DATA2__USDHC4_DATA2	0x1f019
+				MX6SX_PAD_SD4_DATA3__USDHC4_DATA3	0x1f019
+			>;
+		};
+
+		pinctrl_i2c2: i2c2-grp {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO03__I2C2_SDA	0x4001b8b1
+				MX6SX_PAD_GPIO1_IO02__I2C2_SCL	0x4001b8b1
+			>;
+		};
+
+		pinctrl_i2c2_gpio: i2c2-gpio-grp {
+			fsl,pins = <
+				MX6SX_PAD_GPIO1_IO03__GPIO1_IO_3	0x4001b8b1
+				MX6SX_PAD_GPIO1_IO02__GPIO1_IO_2	0x4001b8b1
+			>;
+		};
+	};
+};
