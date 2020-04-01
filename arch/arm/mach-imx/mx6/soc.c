@@ -472,8 +472,8 @@ int arch_cpu_init(void)
 
 	imx_wdog_disable_powerdown(); /* Disable PDE bit of WMCR register */
 
-	if (is_mx6sx())
-		setbits_le32(&ccm->cscdr1, MXC_CCM_CSCDR1_UART_CLK_SEL);
+/*	if (is_mx6sx())
+		setbits_le32(&ccm->cscdr1, MXC_CCM_CSCDR1_UART_CLK_SEL);*/
 
 	init_src();
 
