@@ -25,6 +25,11 @@
 			gpios = <&gpio4 25 0>;
 		};
 
+		reset-off {
+			label = "reset-off";
+			gpios = <&gpio5 11 0>;
+		};
+
 		battery-communication-enable {
 			label = "battery-communication-enable";
 			gpios = <&gpio4 26 0>;
@@ -93,9 +98,10 @@
 	imx6sx-trizeps-vii-sx {
 		pinctrl_leds: leds-grp {
 			fsl,pins = <
-				MX6SX_PAD_QSPI1B_DATA1__GPIO4_IO_25	0x1b0b1
-				MX6SX_PAD_QSPI1B_DATA2__GPIO4_IO_26	0x1b0b1
-				MX6SX_PAD_SD3_CLK__GPIO7_IO_0		0x1b0b1
+				MX6SX_PAD_QSPI1B_DATA1__GPIO4_IO_25	0x10b0
+				MX6SX_PAD_RGMII1_TXC__GPIO5_IO_11	0x10b0
+				MX6SX_PAD_QSPI1B_DATA2__GPIO4_IO_26	0x10b0
+				MX6SX_PAD_SD3_CLK__GPIO7_IO_0		0x10b0
 			>;
 		};
 

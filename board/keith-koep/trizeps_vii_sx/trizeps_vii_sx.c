@@ -45,6 +45,13 @@ int power_init_board(void)
 	if (ret != 0)
 		return ret;
 
+	ret = led_get_by_label("reset-off", &dev);
+	if (ret != 0)
+		return ret;
+	ret = led_set_state(dev, LEDST_ON);
+	if (ret != 0)
+		return ret;
+
 	ret = led_get_by_label("battery-communication-enable", &dev);
 	if (ret != 0)
 		return ret;
