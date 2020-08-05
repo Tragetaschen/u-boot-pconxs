@@ -562,6 +562,15 @@ config TARGET_SOFTING_VINING_2000
 	select SUPPORT_SPL
 	imply CMD_DM
 
+config TARGET_TRIZEPS_VII_DL
+	bool "K&K Trizeps VII DL SoM"
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select DM
+	select DM_THERMAL
+	select MX6DL
+	imply CMD_DM
+
 config TARGET_TRIZEPS_VII_SX
 	bool "K&K Trizeps VII SX SoM"
 	select BOARD_EARLY_INIT_F
@@ -657,6 +666,7 @@ source "board/freescale/mx6sxsabresd/Kconfig"
 source "board/freescale/mx6sxsabreauto/Kconfig"
 source "board/freescale/mx6ul_14x14_evk/Kconfig"
 source "board/freescale/mx6ullevk/Kconfig"
+source "board/keith-koep/trizeps_vii_dl/Kconfig"
 source "board/keith-koep/trizeps_vii_sx/Kconfig"
 source "board/grinn/liteboard/Kconfig"
 source "board/phytec/pcm058/Kconfig"

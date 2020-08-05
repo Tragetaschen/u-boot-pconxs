@@ -1,0 +1,12 @@
+if TARGET_TRIZEPS_VII_DL
+
+config SYS_BOARD
+	default "trizeps_vii_dl"
+
+config SYS_VENDOR
+	default "keith-koep"
+
+config SYS_CONFIG_NAME
+	default "trizeps_vii_dl"
+
+endif

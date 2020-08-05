@@ -587,6 +587,7 @@ dtb-y += \
 	imx6dl-sabreauto.dtb \
 	imx6dl-sabresd.dtb \
 	imx6dl-wandboard-revb1.dtb \
+	imx6dl-trizeps-vii.dtb \
 
 endif
 

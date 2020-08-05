@@ -1,0 +1,6 @@
+TRIZEPS_VII_DL BOARD
+M:	Kai Ruhnau <kai.ruhnau@target-sg.com>
+S:	Maintained
+F:	board/kk/trizeps_vii_dl/
+F:	include/configs/trizeps_vii_dl.h
+F:	configs/trizeps_vii_dl_defconfig
